@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat en Tiempo Real</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
+    #chat { width: 50%; margin: 20px 0; padding: 10px; border: 1px solid #ccc; height: 300px; overflow-y: auto; }
+    #input { display: flex; width: 50%; }
+    #input input { flex: 1; padding: 10px; border: 1px solid #ccc; }
+    #input button { padding: 10px; border: none; background-color: #007BFF; color: white; }
+  </style>
+</head>
+<body>
+  <h1>Chat en Tiempo Real</h1>
+  <div id="chat"></div>
+  <div id="input">
+    <input type="text" id="message" placeholder="Escribe un mensaje..." />
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const chat = document.getElementById("chat");
+    const messageInput = document.getElementById("message");
+
+    // Función para enviar mensajes
+    function sendMessage() {
+      const message = messageInput.value;
+      if (message) {
+        socket.emit("newMessage", message);
+        addMessage(`Tú: ${message}`);
+        messageInput.value = "";
+      }
+    }
+
+    // Mostrar mensajes en el chat
+    function addMessage(msg) {
+      const div = document.createElement("div");
+      div.textContent = msg;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight; // Scroll automático
+    }
+
+    // Escuchar mensajes procesados desde el servidor
+    socket.on("messageProcessed", (msg) => {
+      addMessage(`Servidor: Mensaje procesado - ${msg}`);
+    });
+  </script>
+</body>
+</html>
